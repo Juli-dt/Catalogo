@@ -13,10 +13,11 @@ const ProductVariation = sequelize.define('ProductVariation', {
         },
         onDelete: 'CASCADE'
     },
-    size: { type: DataTypes.STRING, allowNull: true }, // Tamaño (Ej: Pequeño, Mediano, Grande)
-    color: { type: DataTypes.STRING, allowNull: true }, // Color si aplica
-    weight: { type: DataTypes.FLOAT, allowNull: true }, // Peso (Ej: 500g, 1kg)
-    stock: { type: DataTypes.INTEGER, allowNull: true } // Cantidad disponible
+    size: { type: DataTypes.STRING, allowNull: true },
+    color: { type: DataTypes.STRING, allowNull: true }, 
+    weight: { type: DataTypes.FLOAT, allowNull: true }, 
+    stock: { type: DataTypes.INTEGER, allowNull: true }, 
+    type: { type: DataTypes.INTEGER, allowNull: true } 
 })
 
 Product.hasMany(ProductVariation, { foreignKey: 'productId', onDelete: 'CASCADE' });
