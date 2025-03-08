@@ -1,34 +1,51 @@
+const { Op } = require('sequelize');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 
 const productController = {
     createProduct: async (req, res) => {
         try {
-            const { name, description, categoryId } = req.body;
+            const { name, description, categoryId, animal } = req.body;
 
             const category = await Category.findByPk(categoryId);
             if (!category) {
                 return res.status(400).json({ message: 'Categoría no válida' });
             }
 
-            const product = await Product.create({ name, description, categoryId });
+            const product = await Product.create({ name, description, categoryId, animal });
 
             res.status(201).json(product);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error al crear el producto' });
+            
         }
     },
 
     getAllProducts: async (req, res) => {
         try {
-            const products = await Product.findAll({ include: Category });
+            const { categoryName, animal } = req.query;
+    
+            const filters = {};
+            if (animal) filters.animal = animal;
+    
+            const whereCategory = categoryName ? { name: { [Op.iLike]: `%${categoryName}%` } } : {}; // Búsqueda flexible
+            console.log(whereCategory);
+            const products = await Product.findAll({
+                where: filters,
+                include: {
+                    model: Category,
+                    where: whereCategory, 
+                },
+            });
+            console.log(products);
             res.json(products);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error al obtener los productos' });
         }
-    },
+    }
+,    
 
     getProductById: async (req, res) => {
         try {
@@ -75,44 +92,23 @@ const productController = {
         }
     },
 
-    getProductsByCategory: async (req, res) => {
-        try {
-            const { categoryId } = req.params;
-
-            const category = await Category.findByPk(categoryId);
-            if (!category) {
-                return res.status(404).json({ message: 'Categoría no encontrada' });
-            }
-
-            const products = await Product.findAll({ 
-                where: { categoryId }, 
-                include: Category 
-            });
-            
-            res.json(products);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error al obtener productos por categoría' });
-        }
-    },
     updateProduct: async (req, res) => {
         try {
             const { id } = req.params;
-            const { name, description, price, stock, categoryId } = req.body;
+            const { name, description, categoryId, animal } = req.body;
     
             const product = await Product.findByPk(id);
             if (!product) {
                 return res.status(404).json({ message: 'Producto no encontrado' });
             }
     
-            await product.update({ name, description, price, stock, categoryId });
+            await product.update({ name, description, categoryId, animal });
             res.json({ message: 'Producto actualizado correctamente', product });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error al actualizar el producto' });
         }
     }
-    
 };
 
 module.exports = productController;

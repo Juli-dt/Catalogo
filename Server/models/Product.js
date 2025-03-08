@@ -14,6 +14,10 @@ const Product = sequelize.define('Product', {
     description:{
         type: DataTypes.TEXT,
         allowNull: false
+    },
+    animal: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
 })
 
